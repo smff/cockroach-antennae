@@ -14,6 +14,10 @@
         some.onclick = function(e) {
             socket.emit('click', 'yo');
         };
+
+        socket.on('hi', function(msg){
+            console.log(msg);
+        });
     };
 </script>
 <script></script>
