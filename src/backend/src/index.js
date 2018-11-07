@@ -68,6 +68,13 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         _.remove(users, { userId });
+        let applicants = _.filter(users, { show: false });
+        console.log('applicants', applicants, userId);
+        if (applicants.length) {
+            let winner = applicants[Math.floor(Math.random() * applicants.length)];
+            let winnerToWork = _.find(users, { userId: winner.userId });
+            socket.broadcast.to(winnerToWork.userId).emit('show');
+        }
         console.log(socket.id, 'disconnected');
     });
 });
