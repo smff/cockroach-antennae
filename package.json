@@ -1,0 +1,19 @@
+{
+  "name": "cockroach-antennae",
+  "version": "1.0.0",
+  "description": "Cockroach antennae",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smff/cockroach-antennae.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smff/cockroach-antennae/issues"
+  },
+  "homepage": "https://github.com/smff/cockroach-antennae#readme"
+}
