@@ -72,6 +72,6 @@ io.on('connection', function(socket) {
     });
 });
 
-http.listen(3000, '192.168.1.4', function() {
+http.listen(3000, function() {
     console.log('Cockroach antennae is on fire!');
 });
