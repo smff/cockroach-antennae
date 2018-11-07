@@ -1,31 +1,77 @@
+const _ = require('lodash');
+const express = require('express');
 const app = require('express')();
 const path = require('path');
 const http = require('http').Server(app);
 
 const io = require('socket.io')(http);
 
+let users = [];
 
-let users = 0;
+function generateRoomId() {
+    return Date.now();
+}
 
-app.get('/', function(req, res) {
-    res.sendFile(path.resolve(__dirname, '../../frontend/index.html'));
-});
+function generateUser(userId) {
+    return {
+        userId,
+        show: false
+    };
+}
+
+app.use('/', express.static(
+    path.resolve(__dirname, '../../frontend')
+));
+
+// app.get('/', function(req, res) {
+//     res.sendFile(path.resolve(__dirname, '../../frontend/index.html'));
+// });
 
 io.on('connection', function(socket) {
-    console.log('a user connected');
-    users++;
+    const userId = socket.id;
+    console.log(`${userId} connected`);
+
+    const user = generateUser(userId);
+
+    if (users.length === 0) {
+        user.show = true;
+        socket.emit('show');
+    } else if (!_.find(users, { show: true })) {
+        user.show = true;
+        socket.emit('show');
+    } else {
+        socket.emit('hide');
+        user.show = false;
+    }
+
+    users.push(user);
+
+    // let u = _.find(users, { userId });
+
+    users.forEach(u => {
+        console.log(u);
+    });
 
     socket.on('click', function(msg) {
-        console.log('message: ' + msg);
-        io.emit('hi', users);
+        let applicants = _.filter(users, { show: false });
+        let winner = applicants[Math.floor(Math.random() * applicants.length)];
+        let winnerToWork = _.find(users, { userId: winner.userId });
+        user.show = false;
+        winnerToWork.show = true;
+        socket.emit('hide');
+        socket.broadcast.to(winnerToWork.userId).emit('show');
+        console.log('----');
+        users.forEach(u => {
+            console.log(u);
+        });
     });
 
     socket.on('disconnect', function() {
-        users--;
-        console.log('user disconnected');
+        _.remove(users, { userId });
+        console.log(socket.id, 'disconnected');
     });
 });
 
-http.listen(3000, function() {
+http.listen(3000, '192.168.1.4', function() {
     console.log('Cockroach antennae is on fire!');
 });

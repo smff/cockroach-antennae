@@ -3,20 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Тараканьи усы</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
-<div id="some" style="width: 100px; height: 100px; background-color: red">&nbsp;</div>
+<div id="some" class="some hidden">&nbsp;</div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
     window.onload = function() {
         var socket = io();
         var some = document.getElementById('some');
+
         some.onclick = function(e) {
-            socket.emit('click', 'yo');
+            socket.emit('click');
         };
 
-        socket.on('hi', function(msg){
-            console.log(msg);
+        socket.on('show', function(msg) {
+            some.classList.remove('hidden');
+            some.classList.remove('hide');
+            console.log('show');
+        });
+
+        socket.on('hide', function(msg) {
+            some.classList.add('hide');
+            console.log('hide');
+        });
+
+        socket.on('count', function(msg) {
+            console.log('count', msg);
         });
     };
 </script>
