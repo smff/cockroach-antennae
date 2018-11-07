@@ -5,10 +5,17 @@
     <title>Тараканьи усы</title>
 </head>
 <body>
-yo
+<div id="some" style="width: 100px; height: 100px; background-color: red">&nbsp;</div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io();
+    window.onload = function() {
+        var socket = io();
+        var some = document.getElementById('some');
+        some.onclick = function(e) {
+            socket.emit('click', 'yo');
+        };
+    };
 </script>
+<script></script>
 </body>
 </html>
