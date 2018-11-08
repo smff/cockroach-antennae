@@ -3,81 +3,75 @@ const express = require('express');
 const app = require('express')();
 const path = require('path');
 const http = require('http').Server(app);
-
 const io = require('socket.io')(http);
-
-let users = [];
-
-function generateRoomId() {
-    return Date.now();
-}
-
-function generateUser(userId) {
-    return {
-        userId,
-        show: false
-    };
-}
+//------
+const User = require('./models/User');
+const UserStorage = require('./models/UserStorage');
+const Logger = require('./utils/Logger');
+//------
+const userStorage = new UserStorage();
+//------
 
 app.use('/', express.static(
     path.resolve(__dirname, '../../frontend')
 ));
-
-// app.get('/', function(req, res) {
-//     res.sendFile(path.resolve(__dirname, '../../frontend/index.html'));
-// });
+//------
 
 io.on('connection', function(socket) {
-    const userId = socket.id;
-    console.log(`${userId} connected`);
+    Logger.connected(socket.id);
 
-    const user = generateUser(userId);
+    const user = new User(socket.id);
 
-    if (users.length === 0) {
-        user.show = true;
-        socket.emit('show');
-    } else if (!_.find(users, { show: true })) {
-        user.show = true;
-        socket.emit('show');
-    } else {
-        socket.emit('hide');
-        user.show = false;
-    }
+    // if (userStorage.number() === 0) {
+    //     user.show = true;
+    //     socket.emit('show');
+    // } else if (!_.find(users, { show: true })) {
+    //     user.show = true;
+    //     socket.emit('show');
+    // } else {
+    //     socket.emit('hide');
+    //     user.show = false;
+    // }
 
-    users.push(user);
+    userStorage.add(user);
 
-    // let u = _.find(users, { userId });
-
-    users.forEach(u => {
-        console.log(u);
-    });
+    // // let u = _.find(users, { userId });
+    //
+    // users.forEach(u => {
+    //     console.log(u);
+    // });
 
     socket.on('click', function(msg) {
-        let applicants = _.filter(users, { show: false });
-        let winner = applicants[Math.floor(Math.random() * applicants.length)];
-        let winnerToWork = _.find(users, { userId: winner.userId });
-        user.show = false;
-        winnerToWork.show = true;
-        socket.emit('hide');
-        socket.broadcast.to(winnerToWork.userId).emit('show');
-        console.log('----');
-        users.forEach(u => {
-            console.log(u);
-        });
+        Logger.click(socket.id);
+        // let applicants = _.filter(users, { show: false });
+        // let winner = applicants[Math.floor(Math.random() * applicants.length)];
+        // let winnerToWork = _.find(users, { userId: winner.userId });
+        // user.show = false;
+        // winnerToWork.show = true;
+        // socket.emit('hide');
+        // socket.broadcast.to(winnerToWork.userId).emit('show');
+        // console.log('----');
+        // users.forEach(u => {
+        //     console.log(u);
+        // });
+    });
+
+    socket.on('wentOverTheEdge', (msg) => {
+        Logger.wentOverTheEdge(socket.id, msg);
+        // io.emit('show', { type: 'right', c: msg.c });
+        socket.broadcast.emit('show', { type: 'right', c: msg.c });
     });
 
     socket.on('disconnect', function() {
-        _.remove(users, { userId });
-        let applicants = _.filter(users, { show: false });
-        if (applicants.length) {
-            let winner = applicants[Math.floor(Math.random() * applicants.length)];
-            let winnerToWork = _.find(users, { userId: winner.userId });
-            socket.broadcast.to(winnerToWork.userId).emit('show');
-        }
-        console.log(socket.id, 'disconnected');
+        // _.remove(users, { userId });
+        // let applicants = _.filter(users, { show: false });
+        // if (applicants.length) {
+        //     let winner = applicants[Math.floor(Math.random() * applicants.length)];
+        //     let winnerToWork = _.find(users, { userId: winner.userId });
+        //     socket.broadcast.to(winnerToWork.userId).emit('show');
+        // }
+        Logger.disconnected(socket.id);
     });
 });
 
-http.listen(3000, function() {
-    console.log('Cockroach antennae is on fire!');
-});
+http.listen(3000, Logger.log('Cockroach antennae is on fire!'));

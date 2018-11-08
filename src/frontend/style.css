@@ -10,15 +10,26 @@ html, body {
 
 body {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    overflow: hidden;
 }
 
 .some {
-    width: 300px;
-    height: 300px;
-    border-radius: 300px;
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 200px;
     background-color: red;
+    z-index: 2;
+}
+
+.some2 {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 200px;
+    background-color: blue;
 }
 
 .hide {
